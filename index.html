@@ -1,0 +1,330 @@
+<title>2027 Wedding Weekends · Island Lake Lodge</title>
+<style>
+  :root {
+    --ground: #FBFAF6;
+    --panel: #F4F2EA;
+    --ink: #26322B;
+    --ink-2: #5B685E;
+    --ink-3: #8A958C;
+    --rule: #E2E0D6;
+    --grid: #EAE8DE;
+    --hi: #C0622B;
+    --lo: #3D7DB5;
+    --band: rgba(38,50,43,0.055);
+    --pick: rgba(192,98,43,0.06);
+    --pick-edge: rgba(192,98,43,0.45);
+    --smoke: #8A8578;
+    --tooltip-bg: #26322B;
+    --tooltip-ink: #F4F2EA;
+    --tooltip-ink-2: #B9C2BA;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #171B18;
+      --panel: #1F2420;
+      --ink: #E7E9E1;
+      --ink-2: #A5AFA5;
+      --ink-3: #737D73;
+      --rule: #2E342E;
+      --grid: #262C26;
+      --hi: #CC7038;
+      --lo: #4E9BD6;
+      --band: rgba(231,233,225,0.06);
+      --pick: rgba(204,112,56,0.07);
+      --pick-edge: rgba(204,112,56,0.55);
+      --smoke: #837E71;
+      --tooltip-bg: #E7E9E1;
+      --tooltip-ink: #1F2420;
+      --tooltip-ink-2: #56605A;
+    }
+  }
+  :root[data-theme="light"] {
+    --ground: #FBFAF6; --panel: #F4F2EA; --ink: #26322B; --ink-2: #5B685E; --ink-3: #8A958C;
+    --rule: #E2E0D6; --grid: #EAE8DE; --hi: #C0622B; --lo: #3D7DB5;
+    --band: rgba(38,50,43,0.055); --pick: rgba(192,98,43,0.06); --pick-edge: rgba(192,98,43,0.45);
+    --smoke: #8A8578;
+    --tooltip-bg: #26322B; --tooltip-ink: #F4F2EA; --tooltip-ink-2: #B9C2BA;
+  }
+  :root[data-theme="dark"] {
+    --ground: #171B18; --panel: #1F2420; --ink: #E7E9E1; --ink-2: #A5AFA5; --ink-3: #737D73;
+    --rule: #2E342E; --grid: #262C26; --hi: #CC7038; --lo: #4E9BD6;
+    --band: rgba(231,233,225,0.06); --pick: rgba(204,112,56,0.07); --pick-edge: rgba(204,112,56,0.55);
+    --smoke: #837E71;
+    --tooltip-bg: #E7E9E1; --tooltip-ink: #1F2420; --tooltip-ink-2: #56605A;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: -apple-system, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+    line-height: 1.55;
+    margin: 0;
+    padding: 0 20px 64px;
+  }
+  .serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; }
+  main { max-width: 1060px; margin: 0 auto; }
+
+  header { padding: 56px 0 8px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-2); margin: 0 0 14px;
+  }
+  h1 {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-weight: 500; font-size: clamp(30px, 4.6vw, 46px);
+    line-height: 1.12; margin: 0 0 14px; text-wrap: balance; max-width: 21ch;
+  }
+  .lede { color: var(--ink-2); max-width: 62ch; margin: 0; font-size: 16px; }
+  .lede strong { color: var(--ink); font-weight: 600; }
+
+
+  .chart-wrap { margin-top: 40px; }
+  .chart-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  h2 {
+    font-family: "Iowan Old Style", Palatino, Georgia, serif;
+    font-weight: 500; font-size: 22px; margin: 0;
+  }
+  .legend { display: flex; gap: 18px; font-size: 12.5px; color: var(--ink-2); align-items: center; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+  .swatch.bar { width: 9px; height: 9px; border-radius: 2.5px; }
+
+  .chart-scroll { overflow-x: auto; }
+  #chart { display: block; min-width: 760px; width: 100%; height: auto; }
+  svg text { font-family: -apple-system, "SF Pro Text", "Segoe UI", system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+
+  #tooltip {
+    position: fixed; pointer-events: none; z-index: 10; display: none;
+    background: var(--tooltip-bg); color: var(--tooltip-ink);
+    border-radius: 9px; padding: 11px 14px; font-size: 13px; line-height: 1.5;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.22); max-width: 250px;
+  }
+  #tooltip .tt-date { font-family: "Iowan Old Style", Palatino, Georgia, serif; font-size: 16px; margin-bottom: 4px; }
+  #tooltip .tt-sub { color: var(--tooltip-ink-2); font-size: 11.5px; margin-top: 6px; }
+  #tooltip .tt-row { display: flex; justify-content: space-between; gap: 16px; font-variant-numeric: tabular-nums; }
+
+  .note { color: var(--ink-3); font-size: 12.5px; max-width: 74ch; margin: 26px 0 0; }
+  .note a { color: var(--ink-2); }
+
+  details { margin-top: 34px; border-top: 1px solid var(--rule); padding-top: 14px; }
+  summary { cursor: pointer; color: var(--ink-2); font-size: 13.5px; }
+  summary:focus-visible { outline: 2px solid var(--lo); outline-offset: 3px; border-radius: 4px; }
+  .table-scroll { overflow-x: auto; margin-top: 12px; }
+  table { border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  th, td { padding: 5px 14px 5px 0; text-align: right; border-bottom: 1px solid var(--grid); }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--ink-2); font-weight: 600; }
+</style>
+
+<main>
+  <header>
+    <p class="eyebrow">Island Lake Lodge · Fernie, British Columbia</p>
+    <h1>Fifty-three weekends. One wedding.</h1>
+    <p class="lede">Every Friday-to-Sunday of 2027, scored by <strong>113 years</strong> of daily
+    weather records from the Fernie station down the valley — about 730 historical day-records
+    behind each weekend. Hover any weekend for average high and low and how often it rains.</p>
+  </header>
+
+
+  <div class="chart-wrap">
+    <div class="chart-head">
+      <h2>Temperature, weekend by weekend</h2>
+      <div class="legend" aria-hidden="true">
+        <span><i class="swatch" style="background:var(--hi)"></i>Average high</span>
+        <span><i class="swatch" style="background:var(--lo)"></i>Average low</span>
+        <span><i class="swatch bar" style="background:var(--lo);opacity:.55"></i>Rainy days</span>
+        <span><i class="swatch bar" style="background:var(--smoke);opacity:.8"></i>Smoke risk (’15–’25)</span>
+      </div>
+    </div>
+    <div class="chart-scroll">
+      <svg id="chart" viewBox="0 0 1060 720" role="img"
+           aria-label="Chart of average high and low temperature and share of rainy days for each Friday-to-Sunday weekend of 2027 at Fernie, BC"></svg>
+    </div>
+  </div>
+
+  <p class="note">Temperatures in °F. Averages from Environment and Climate Change Canada daily
+  records, FERNIE station (climate ID 1152850, elev. 3,284 ft), 1913–2026. Each weekend uses a 7-day
+  window centered on it (Wednesday–Tuesday, so windows tile the year without overlap), pooling ~730
+  historical day-records. “Rainy days” is the share of those days with measurable rain — read it as a
+  relative comparison between weekends. The lodge sits ~1,300 ft higher than the station, so expect
+  it to run 4–5 °F cooler. Winter weekends see snow far more often than rain (snowy-day odds are in
+  each tooltip). Smoke: “smoky day” means a human observer at Cranbrook A airport (60 mi west, same
+  airshed) logged Smoke in the hourly weather record — a consistent instrument from 1968 through today.
+  Bars show 2015–2025, the modern fire era; small ticks show the 1968–2014 baseline, when smoke touched
+  fewer than 2% of days in every week of the year. NOAA satellite smoke-plume maps (2005–2025) and Elk
+  Valley PM2.5 monitors (2018–2025) independently confirm the seasonal shape; the tooltip includes the
+  share of days with a heavy plume overhead. The step change between eras is the signal: smoke risk in
+  Fernie is now ~10× what it was for most of the historical record.</p>
+
+  <details>
+    <summary>View as a table — all 53 weekends</summary>
+    <div class="table-scroll"><table id="datatable"></table></div>
+  </details>
+</main>
+
+<div id="tooltip" role="status"></div>
+
+<script>
+const SMOKE = [{"start": "2027-01-01", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-01-08", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-01-15", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-01-22", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-01-29", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-02-05", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-02-12", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-02-19", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-02-26", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-03-05", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-03-12", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-03-19", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-03-26", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-04-02", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-04-09", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-04-16", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-04-23", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-04-30", "oldPct": 0.5, "newPct": 2.3, "hmsHeavyPct": 0, "nOld": 188, "nNew": 44}, {"start": "2027-05-07", "oldPct": 0.0, "newPct": 0.0, "hmsHeavyPct": 0, "nOld": 329, "nNew": 77}, {"start": "2027-05-14", "oldPct": 0.0, "newPct": 2.6, "hmsHeavyPct": 2, "nOld": 329, "nNew": 77}, {"start": "2027-05-21", "oldPct": 0.9, "newPct": 0.0, "hmsHeavyPct": 0, "nOld": 329, "nNew": 77}, {"start": "2027-05-28", "oldPct": 0.3, "newPct": 2.6, "hmsHeavyPct": 0, "nOld": 329, "nNew": 77}, {"start": "2027-06-04", "oldPct": 0.0, "newPct": 0.0, "hmsHeavyPct": 0, "nOld": 329, "nNew": 77}, {"start": "2027-06-11", "oldPct": 0.0, "newPct": 0.0, "hmsHeavyPct": 1, "nOld": 329, "nNew": 76}, {"start": "2027-06-18", "oldPct": 0.0, "newPct": 0.0, "hmsHeavyPct": 0, "nOld": 329, "nNew": 77}, {"start": "2027-06-25", "oldPct": 0.6, "newPct": 0.0, "hmsHeavyPct": 0, "nOld": 329, "nNew": 77}, {"start": "2027-07-02", "oldPct": 0.0, "newPct": 0.0, "hmsHeavyPct": 1, "nOld": 328, "nNew": 76}, {"start": "2027-07-09", "oldPct": 0.3, "newPct": 0.0, "hmsHeavyPct": 3, "nOld": 328, "nNew": 76}, {"start": "2027-07-16", "oldPct": 0.3, "newPct": 9.1, "hmsHeavyPct": 8, "nOld": 329, "nNew": 77}, {"start": "2027-07-23", "oldPct": 0.6, "newPct": 13.0, "hmsHeavyPct": 10, "nOld": 329, "nNew": 77}, {"start": "2027-07-30", "oldPct": 1.2, "newPct": 11.7, "hmsHeavyPct": 7, "nOld": 327, "nNew": 77}, {"start": "2027-08-06", "oldPct": 0.3, "newPct": 14.3, "hmsHeavyPct": 10, "nOld": 329, "nNew": 77}, {"start": "2027-08-13", "oldPct": 2.1, "newPct": 23.4, "hmsHeavyPct": 14, "nOld": 329, "nNew": 77}, {"start": "2027-08-20", "oldPct": 1.5, "newPct": 19.5, "hmsHeavyPct": 8, "nOld": 329, "nNew": 77}, {"start": "2027-08-27", "oldPct": 1.2, "newPct": 13.0, "hmsHeavyPct": 2, "nOld": 329, "nNew": 77}, {"start": "2027-09-03", "oldPct": 2.1, "newPct": 11.7, "hmsHeavyPct": 8, "nOld": 329, "nNew": 77}, {"start": "2027-09-10", "oldPct": 0.3, "newPct": 11.7, "hmsHeavyPct": 10, "nOld": 329, "nNew": 77}, {"start": "2027-09-17", "oldPct": 0.6, "newPct": 7.8, "hmsHeavyPct": 3, "nOld": 327, "nNew": 77}, {"start": "2027-09-24", "oldPct": 0.0, "newPct": 2.6, "hmsHeavyPct": 1, "nOld": 329, "nNew": 77}, {"start": "2027-10-01", "oldPct": 1.2, "newPct": 0.0, "hmsHeavyPct": 0, "nOld": 329, "nNew": 77}, {"start": "2027-10-08", "oldPct": 1.2, "newPct": 0.0, "hmsHeavyPct": 0, "nOld": 328, "nNew": 77}, {"start": "2027-10-15", "oldPct": 1.5, "newPct": 0.0, "hmsHeavyPct": 1, "nOld": 326, "nNew": 77}, {"start": "2027-10-22", "oldPct": 1.9, "newPct": 1.3, "hmsHeavyPct": 0, "nOld": 322, "nNew": 77}, {"start": "2027-10-29", "oldPct": 0.9, "newPct": 1.8, "hmsHeavyPct": 0, "nOld": 232, "nNew": 55}, {"start": "2027-11-05", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-11-12", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-11-19", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-11-26", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-12-03", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-12-10", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-12-17", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-12-24", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}, {"start": "2027-12-31", "oldPct": null, "newPct": null, "hmsHeavyPct": null, "nOld": 0, "nNew": 0}];
+const DATA = [{"start": "2027-01-01", "label": "Jan 1\u20133", "month": 1, "hi": -3.5, "lo": -11.6, "recHi": 11.5, "recLo": -41.7, "rainPct": 12, "rainTypical": 9.0, "snowPct": 46, "nDays": 707}, {"start": "2027-01-08", "label": "Jan 8\u201310", "month": 1, "hi": -2.5, "lo": -11.0, "recHi": 14.0, "recLo": -39.0, "rainPct": 13, "rainTypical": 8.4, "snowPct": 43, "nDays": 754}, {"start": "2027-01-15", "label": "Jan 15\u201317", "month": 1, "hi": -2.7, "lo": -11.3, "recHi": 12.0, "recLo": -40.0, "rainPct": 14, "rainTypical": 9.6, "snowPct": 39, "nDays": 753}, {"start": "2027-01-22", "label": "Jan 22\u201324", "month": 1, "hi": -2.5, "lo": -11.9, "recHi": 15.0, "recLo": -39.4, "rainPct": 11, "rainTypical": 7.0, "snowPct": 39, "nDays": 745}, {"start": "2027-01-29", "label": "Jan 29\u201331", "month": 1, "hi": -1.8, "lo": -11.6, "recHi": 11.0, "recLo": -39.4, "rainPct": 14, "rainTypical": 6.4, "snowPct": 33, "nDays": 756}, {"start": "2027-02-05", "label": "Feb 5\u20137", "month": 2, "hi": -0.4, "lo": -10.5, "recHi": 13.0, "recLo": -39.4, "rainPct": 12, "rainTypical": 6.1, "snowPct": 32, "nDays": 739}, {"start": "2027-02-12", "label": "Feb 12\u201314", "month": 2, "hi": 0.4, "lo": -10.1, "recHi": 13.5, "recLo": -40.0, "rainPct": 14, "rainTypical": 5.6, "snowPct": 33, "nDays": 736}, {"start": "2027-02-19", "label": "Feb 19\u201321", "month": 2, "hi": 1.3, "lo": -9.6, "recHi": 14.5, "recLo": -32.8, "rainPct": 15, "rainTypical": 6.4, "snowPct": 32, "nDays": 736}, {"start": "2027-02-26", "label": "Feb 26\u201328", "month": 2, "hi": 2.1, "lo": -9.1, "recHi": 15.5, "recLo": -33.9, "rainPct": 15, "rainTypical": 6.8, "snowPct": 31, "nDays": 743}, {"start": "2027-03-05", "label": "Mar 5\u20137", "month": 3, "hi": 3.1, "lo": -8.0, "recHi": 15.5, "recLo": -32.2, "rainPct": 16, "rainTypical": 5.3, "snowPct": 28, "nDays": 745}, {"start": "2027-03-12", "label": "Mar 12\u201314", "month": 3, "hi": 4.9, "lo": -6.0, "recHi": 17.0, "recLo": -32.8, "rainPct": 24, "rainTypical": 5.1, "snowPct": 26, "nDays": 752}, {"start": "2027-03-19", "label": "Mar 19\u201321", "month": 3, "hi": 6.4, "lo": -4.5, "recHi": 20.0, "recLo": -26.0, "rainPct": 25, "rainTypical": 5.0, "snowPct": 20, "nDays": 749}, {"start": "2027-03-26", "label": "Mar 26\u201328", "month": 3, "hi": 6.6, "lo": -4.2, "recHi": 21.0, "recLo": -31.7, "rainPct": 28, "rainTypical": 4.0, "snowPct": 22, "nDays": 751}, {"start": "2027-04-02", "label": "Apr 2\u20134", "month": 4, "hi": 8.4, "lo": -2.8, "recHi": 22.0, "recLo": -20.0, "rainPct": 29, "rainTypical": 3.6, "snowPct": 18, "nDays": 726}, {"start": "2027-04-09", "label": "Apr 9\u201311", "month": 4, "hi": 10.2, "lo": -1.8, "recHi": 25.0, "recLo": -17.8, "rainPct": 32, "rainTypical": 3.8, "snowPct": 11, "nDays": 739}, {"start": "2027-04-16", "label": "Apr 16\u201318", "month": 4, "hi": 11.6, "lo": -1.0, "recHi": 25.5, "recLo": -18.9, "rainPct": 34, "rainTypical": 3.8, "snowPct": 9, "nDays": 732}, {"start": "2027-04-23", "label": "Apr 23\u201325", "month": 4, "hi": 13.0, "lo": 0.0, "recHi": 28.9, "recLo": -11.1, "rainPct": 37, "rainTypical": 3.0, "snowPct": 7, "nDays": 748}, {"start": "2027-04-30", "label": "Apr 30\u2013May 2", "month": 4, "hi": 14.4, "lo": 0.8, "recHi": 28.5, "recLo": -11.0, "rainPct": 38, "rainTypical": 4.0, "snowPct": 3, "nDays": 755}, {"start": "2027-05-07", "label": "May 7\u20139", "month": 5, "hi": 15.7, "lo": 1.7, "recHi": 30.0, "recLo": -9.5, "rainPct": 37, "rainTypical": 2.8, "snowPct": 2, "nDays": 739}, {"start": "2027-05-14", "label": "May 14\u201316", "month": 5, "hi": 17.1, "lo": 2.9, "recHi": 31.0, "recLo": -11.0, "rainPct": 40, "rainTypical": 3.8, "snowPct": 1, "nDays": 743}, {"start": "2027-05-21", "label": "May 21\u201323", "month": 5, "hi": 17.8, "lo": 3.7, "recHi": 31.0, "recLo": -8.0, "rainPct": 44, "rainTypical": 3.8, "snowPct": 1, "nDays": 712}, {"start": "2027-05-28", "label": "May 28\u201330", "month": 5, "hi": 18.5, "lo": 4.7, "recHi": 33.0, "recLo": -5.0, "rainPct": 47, "rainTypical": 3.6, "snowPct": 0, "nDays": 745}, {"start": "2027-06-04", "label": "Jun 4\u20136", "month": 6, "hi": 19.4, "lo": 5.4, "recHi": 33.0, "recLo": -2.2, "rainPct": 48, "rainTypical": 3.8, "snowPct": 0, "nDays": 740}, {"start": "2027-06-11", "label": "Jun 11\u201313", "month": 6, "hi": 19.9, "lo": 6.2, "recHi": 36.1, "recLo": -2.2, "rainPct": 51, "rainTypical": 3.6, "snowPct": 0, "nDays": 744}, {"start": "2027-06-18", "label": "Jun 18\u201320", "month": 6, "hi": 21.1, "lo": 6.7, "recHi": 33.9, "recLo": -1.1, "rainPct": 49, "rainTypical": 3.6, "snowPct": 0, "nDays": 749}, {"start": "2027-06-25", "label": "Jun 25\u201327", "month": 6, "hi": 22.1, "lo": 7.3, "recHi": 38.0, "recLo": -0.6, "rainPct": 44, "rainTypical": 4.0, "snowPct": 0, "nDays": 725}, {"start": "2027-07-02", "label": "Jul 2\u20134", "month": 7, "hi": 23.4, "lo": 7.7, "recHi": 38.0, "recLo": 0.0, "rainPct": 36, "rainTypical": 3.8, "snowPct": 0, "nDays": 709}, {"start": "2027-07-09", "label": "Jul 9\u201311", "month": 7, "hi": 25.1, "lo": 8.2, "recHi": 36.5, "recLo": 0.0, "rainPct": 31, "rainTypical": 4.1, "snowPct": 0, "nDays": 723}, {"start": "2027-07-16", "label": "Jul 16\u201318", "month": 7, "hi": 25.9, "lo": 8.6, "recHi": 36.0, "recLo": 0.0, "rainPct": 28, "rainTypical": 3.0, "snowPct": 0, "nDays": 748}, {"start": "2027-07-23", "label": "Jul 23\u201325", "month": 7, "hi": 26.6, "lo": 8.7, "recHi": 37.0, "recLo": 1.7, "rainPct": 22, "rainTypical": 2.6, "snowPct": 0, "nDays": 744}, {"start": "2027-07-30", "label": "Jul 30\u2013Aug 1", "month": 7, "hi": 26.6, "lo": 8.4, "recHi": 37.0, "recLo": 0.0, "rainPct": 21, "rainTypical": 2.9, "snowPct": 0, "nDays": 731}, {"start": "2027-08-06", "label": "Aug 6\u20138", "month": 8, "hi": 25.9, "lo": 8.0, "recHi": 38.0, "recLo": 0.0, "rainPct": 26, "rainTypical": 2.8, "snowPct": 0, "nDays": 725}, {"start": "2027-08-13", "label": "Aug 13\u201315", "month": 8, "hi": 25.0, "lo": 7.7, "recHi": 38.0, "recLo": 0.0, "rainPct": 27, "rainTypical": 4.0, "snowPct": 0, "nDays": 730}, {"start": "2027-08-20", "label": "Aug 20\u201322", "month": 8, "hi": 23.9, "lo": 7.1, "recHi": 35.0, "recLo": -2.0, "rainPct": 28, "rainTypical": 3.5, "snowPct": 0, "nDays": 735}, {"start": "2027-08-27", "label": "Aug 27\u201329", "month": 8, "hi": 22.6, "lo": 6.0, "recHi": 35.0, "recLo": -1.1, "rainPct": 31, "rainTypical": 3.0, "snowPct": 0, "nDays": 734}, {"start": "2027-09-03", "label": "Sep 3\u20135", "month": 9, "hi": 21.3, "lo": 5.2, "recHi": 33.0, "recLo": -3.3, "rainPct": 31, "rainTypical": 4.6, "snowPct": 0, "nDays": 699}, {"start": "2027-09-10", "label": "Sep 10\u201312", "month": 9, "hi": 19.3, "lo": 3.9, "recHi": 31.7, "recLo": -6.7, "rainPct": 32, "rainTypical": 4.2, "snowPct": 0, "nDays": 723}, {"start": "2027-09-17", "label": "Sep 17\u201319", "month": 9, "hi": 17.8, "lo": 3.1, "recHi": 30.0, "recLo": -7.8, "rainPct": 36, "rainTypical": 4.2, "snowPct": 0, "nDays": 716}, {"start": "2027-09-24", "label": "Sep 24\u201326", "month": 9, "hi": 17.0, "lo": 2.2, "recHi": 30.0, "recLo": -18.3, "rainPct": 30, "rainTypical": 3.8, "snowPct": 1, "nDays": 714}, {"start": "2027-10-01", "label": "Oct 1\u20133", "month": 10, "hi": 15.2, "lo": 1.4, "recHi": 27.0, "recLo": -12.0, "rainPct": 32, "rainTypical": 4.2, "snowPct": 1, "nDays": 710}, {"start": "2027-10-08", "label": "Oct 8\u201310", "month": 10, "hi": 13.4, "lo": 0.0, "recHi": 28.0, "recLo": -14.0, "rainPct": 33, "rainTypical": 4.5, "snowPct": 1, "nDays": 711}, {"start": "2027-10-15", "label": "Oct 15\u201317", "month": 10, "hi": 11.8, "lo": -0.2, "recHi": 25.0, "recLo": -11.1, "rainPct": 36, "rainTypical": 5.6, "snowPct": 3, "nDays": 715}, {"start": "2027-10-22", "label": "Oct 22\u201324", "month": 10, "hi": 9.7, "lo": -0.9, "recHi": 21.0, "recLo": -19.0, "rainPct": 36, "rainTypical": 6.0, "snowPct": 9, "nDays": 744}, {"start": "2027-10-29", "label": "Oct 29\u201331", "month": 10, "hi": 6.7, "lo": -2.7, "recHi": 20.0, "recLo": -25.6, "rainPct": 36, "rainTypical": 5.6, "snowPct": 12, "nDays": 713}, {"start": "2027-11-05", "label": "Nov 5\u20137", "month": 11, "hi": 5.1, "lo": -3.7, "recHi": 18.3, "recLo": -22.8, "rainPct": 32, "rainTypical": 5.6, "snowPct": 20, "nDays": 718}, {"start": "2027-11-12", "label": "Nov 12\u201314", "month": 11, "hi": 3.1, "lo": -4.8, "recHi": 16.0, "recLo": -32.2, "rainPct": 28, "rainTypical": 8.1, "snowPct": 23, "nDays": 693}, {"start": "2027-11-19", "label": "Nov 19\u201321", "month": 11, "hi": 1.8, "lo": -5.8, "recHi": 15.6, "recLo": -31.0, "rainPct": 26, "rainTypical": 5.5, "snowPct": 27, "nDays": 716}, {"start": "2027-11-26", "label": "Nov 26\u201328", "month": 11, "hi": 1.0, "lo": -6.4, "recHi": 12.2, "recLo": -32.0, "rainPct": 18, "rainTypical": 7.0, "snowPct": 32, "nDays": 711}, {"start": "2027-12-03", "label": "Dec 3\u20135", "month": 12, "hi": -0.2, "lo": -7.7, "recHi": 12.2, "recLo": -32.0, "rainPct": 19, "rainTypical": 7.6, "snowPct": 38, "nDays": 716}, {"start": "2027-12-10", "label": "Dec 10\u201312", "month": 12, "hi": -1.6, "lo": -9.3, "recHi": 11.7, "recLo": -37.2, "rainPct": 18, "rainTypical": 8.4, "snowPct": 41, "nDays": 725}, {"start": "2027-12-17", "label": "Dec 17\u201319", "month": 12, "hi": -2.2, "lo": -9.8, "recHi": 20.0, "recLo": -37.2, "rainPct": 18, "rainTypical": 9.1, "snowPct": 39, "nDays": 723}, {"start": "2027-12-24", "label": "Dec 24\u201326", "month": 12, "hi": -3.0, "lo": -10.9, "recHi": 12.0, "recLo": -40.0, "rainPct": 12, "rainTypical": 7.2, "snowPct": 43, "nDays": 674}, {"start": "2027-12-31", "label": "Dec 31\u2013Jan 2", "month": 12, "hi": -3.5, "lo": -11.6, "recHi": 11.5, "recLo": -41.7, "rainPct": 12, "rainTypical": 9.0, "snowPct": 46, "nDays": 702}];
+
+
+const F = c => c == null ? null : Math.round(c * 9 / 5 + 32);
+const fmt = (v, unit="°") => v == null ? "—" : `${v}${unit}`;
+
+// ---- chart ----
+const svg = document.getElementById("chart");
+const NS = "http://www.w3.org/2000/svg";
+const W = 1060, H = 720;
+const M = { l: 44, r: 16, t: 16 };
+const tempTop = M.t, tempBot = 320;
+const rainTop = 368, rainBot = 540;
+const smokeTop = 592, smokeBot = 664;
+const axisY = 704;
+const plotW = W - M.l - M.r;
+const n = DATA.length;
+const step = plotW / n;
+
+const T_MIN = -5, T_MAX = 90; // °F
+const ty = t => tempBot - (t - T_MIN) / (T_MAX - T_MIN) * (tempBot - tempTop);
+const ry = p => rainBot - p / 100 * (rainBot - rainTop);
+const sy = p => smokeBot - p / 30 * (smokeBot - smokeTop);
+const cx = i => M.l + step * (i + 0.5);
+
+function el(name, attrs, parent = svg) {
+  const e = document.createElementNS(NS, name);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  parent.appendChild(e);
+  return e;
+}
+function txt(x, y, str, attrs = {}) {
+  const e = el("text", { x, y, fill: "var(--ink-3)", "font-size": 11, ...attrs });
+  e.textContent = str;
+  return e;
+}
+
+
+// temp gridlines (32°F freezing line emphasized)
+for (const g of [0, 20, 32, 40, 60, 80]) {
+  el("line", { x1: M.l, x2: W - M.r, y1: ty(g), y2: ty(g),
+               stroke: g === 32 ? "var(--rule)" : "var(--grid)", "stroke-width": 1 });
+  txt(M.l - 8, ty(g) + 4, `${g}°`, { "text-anchor": "end" });
+}
+// rain gridlines
+for (const g of [0, 50, 100]) {
+  el("line", { x1: M.l, x2: W - M.r, y1: ry(g), y2: ry(g), stroke: "var(--grid)", "stroke-width": 1 });
+  txt(M.l - 8, ry(g) + 4, `${g}%`, { "text-anchor": "end" });
+}
+txt(M.l, rainTop - 14, "RAINY DAYS — SHARE OF DAYS WITH MEASURABLE RAIN", { "letter-spacing": "0.1em", "font-size": 10, fill: "var(--ink-2)" });
+
+// smoke gridlines
+for (const g of [0, 15, 30]) {
+  el("line", { x1: M.l, x2: W - M.r, y1: sy(g), y2: sy(g), stroke: "var(--grid)", "stroke-width": 1 });
+  txt(M.l - 8, sy(g) + 4, `${g}%`, { "text-anchor": "end" });
+}
+txt(M.l, smokeTop - 14, "WILDFIRE SMOKE — SHARE OF DAYS WITH SMOKE OBSERVED · BARS 2015–2025 · TICKS 1968–2014 BASELINE",
+    { "letter-spacing": "0.1em", "font-size": 10, fill: "var(--ink-2)" });
+SMOKE.forEach((s, i) => {
+  if (s.newPct != null) {
+    const h = Math.max(s.newPct > 0 ? 2 : 0.75, (smokeBot - smokeTop) * Math.min(s.newPct, 30) / 30);
+    el("rect", { x: M.l + step * i + 2, y: smokeBot - h, width: step - 4, height: h,
+                 fill: "var(--smoke)", opacity: 0.8, rx: 2 });
+  }
+  if (s.oldPct != null) {
+    const y = sy(Math.min(s.oldPct, 30));
+    el("line", { x1: M.l + step * i + 2, x2: M.l + step * (i + 1) - 2, y1: y, y2: y,
+                 stroke: "var(--ink-2)", "stroke-width": 1.5 });
+  }
+});
+
+// month ticks
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+let seen = new Set();
+DATA.forEach((d, i) => {
+  if (!seen.has(d.month)) {
+    seen.add(d.month);
+    txt(cx(i) - step / 2, axisY, MONTHS[d.month - 1], { "font-size": 11.5, fill: "var(--ink-2)" });
+    el("line", { x1: M.l + step * i, x2: M.l + step * i, y1: smokeBot, y2: smokeBot + 6,
+                 stroke: "var(--rule)", "stroke-width": 1 });
+  }
+});
+
+// temperature band + lines
+const pts = DATA.map((d, i) => ({ x: cx(i), hi: ty(F(d.hi)), lo: ty(F(d.lo)) }));
+const path = key => pts.map((p, i) => `${i ? "L" : "M"}${p.x.toFixed(1)},${p[key].toFixed(1)}`).join("");
+el("path", { d: path("hi") + pts.slice().reverse().map(p => `L${p.x.toFixed(1)},${p.lo.toFixed(1)}`).join("") + "Z",
+             fill: "var(--band)", stroke: "none" });
+el("path", { d: path("hi"), fill: "none", stroke: "var(--hi)", "stroke-width": 2,
+             "stroke-linejoin": "round", "stroke-linecap": "round" });
+el("path", { d: path("lo"), fill: "none", stroke: "var(--lo)", "stroke-width": 2,
+             "stroke-linejoin": "round", "stroke-linecap": "round" });
+
+// direct labels at the summer peak
+const peakI = DATA.reduce((b, d, i) => d.hi > DATA[b].hi ? i : b, 0);
+txt(cx(peakI), pts[peakI].hi - 10, `Avg high ${F(DATA[peakI].hi)}°`,
+    { "text-anchor": "middle", fill: "var(--hi)", "font-size": 11.5, "font-weight": 600 });
+txt(cx(peakI), pts[peakI].lo + 18, `Avg low ${F(DATA[peakI].lo)}°`,
+    { "text-anchor": "middle", fill: "var(--lo)", "font-size": 11.5, "font-weight": 600 });
+
+// rain bars
+DATA.forEach((d, i) => {
+  const h = Math.max(1.5, (rainBot - rainTop) * d.rainPct / 100);
+  el("rect", { x: M.l + step * i + 2, y: rainBot - h, width: step - 4, height: h,
+               fill: "var(--lo)", opacity: 0.55, rx: 2 });
+});
+
+// hover layer
+const tooltip = document.getElementById("tooltip");
+const cross = el("line", { y1: tempTop, y2: smokeBot, stroke: "var(--ink-2)",
+                           "stroke-width": 1, "stroke-dasharray": "3 3", visibility: "hidden" });
+const hiDot = el("circle", { r: 4, fill: "var(--hi)", stroke: "var(--ground)", "stroke-width": 2, visibility: "hidden" });
+const loDot = el("circle", { r: 4, fill: "var(--lo)", stroke: "var(--ground)", "stroke-width": 2, visibility: "hidden" });
+
+DATA.forEach((d, i) => {
+  const hit = el("rect", { x: M.l + step * i, y: tempTop, width: step, height: smokeBot - tempTop,
+                           fill: "transparent" });
+  hit.addEventListener("pointerenter", ev => show(d, i, ev));
+  hit.addEventListener("pointermove", ev => place(ev));
+  hit.addEventListener("pointerleave", hide);
+});
+
+function show(d, i) {
+  cross.setAttribute("x1", cx(i)); cross.setAttribute("x2", cx(i));
+  cross.setAttribute("visibility", "visible");
+  hiDot.setAttribute("cx", cx(i)); hiDot.setAttribute("cy", ty(F(d.hi))); hiDot.setAttribute("visibility", "visible");
+  loDot.setAttribute("cx", cx(i)); loDot.setAttribute("cy", ty(F(d.lo))); loDot.setAttribute("visibility", "visible");
+  const wetLine = d.rainPct > 0 && d.rainTypical > 0
+    ? `<div class="tt-row"><span>Typical rain on a wet day</span><b>${d.rainTypical} mm</b></div>` : "";
+  const snowLine = d.snowPct >= 5
+    ? `<div class="tt-row"><span>Snowy days</span><b>${d.snowPct}%</b></div>` : "";
+  tooltip.innerHTML = `
+    <div class="tt-date">Fri ${d.label}</div>
+    <div class="tt-row"><span>Average high</span><b>${fmt(F(d.hi))}</b></div>
+    <div class="tt-row"><span>Average low</span><b>${fmt(F(d.lo))}</b></div>
+    <div class="tt-row"><span>Rainy days</span><b>${d.rainPct}%</b></div>
+    ${wetLine}${snowLine}${(() => { const s = SMOKE[i]; if (!s || s.newPct == null || d.month < 6 || d.month > 10) return "";
+    return `<div class="tt-row"><span>Smoky days ’15–’25</span><b>${s.newPct}%</b></div>
+            <div class="tt-row"><span>Smoky days ’68–’14</span><b>${s.oldPct}%</b></div>
+            <div class="tt-row"><span>Heavy plume overhead ’05–’25</span><b>${s.hmsHeavyPct}%</b></div>`; })()}
+    <div class="tt-sub">Records ${fmt(F(d.recHi))} / ${fmt(F(d.recLo))} · ${d.nDays} day-records</div>`;
+  tooltip.style.display = "block";
+}
+function place(ev) {
+  const pad = 14;
+  let x = ev.clientX + pad, y = ev.clientY + pad;
+  const r = tooltip.getBoundingClientRect();
+  if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - pad;
+  if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - pad;
+  tooltip.style.left = x + "px"; tooltip.style.top = y + "px";
+}
+function hide() {
+  tooltip.style.display = "none";
+  for (const e of [cross, hiDot, loDot]) e.setAttribute("visibility", "hidden");
+}
+
+// ---- table ----
+document.getElementById("datatable").innerHTML =
+  `<tr><th>Weekend (Fri–Sun)</th><th>Avg high</th><th>Avg low</th><th>Rainy days</th><th>Smoky ’15–’25</th><th>Smoky ’68–’14</th><th>Typical rain</th><th>Snowy days</th><th>Record high</th><th>Record low</th><th>Day-records</th></tr>` +
+  DATA.map((d, i) => `<tr><td>${d.label}</td><td>${fmt(F(d.hi))}</td><td>${fmt(F(d.lo))}</td><td>${d.rainPct}%</td><td>${SMOKE[i].newPct == null ? "—" : SMOKE[i].newPct + "%"}</td><td>${SMOKE[i].oldPct == null ? "—" : SMOKE[i].oldPct + "%"}</td><td>${d.rainTypical} mm</td><td>${d.snowPct}%</td><td>${fmt(F(d.recHi))}</td><td>${fmt(F(d.recLo))}</td><td>${d.nDays}</td></tr>`).join("");
+</script>
