@@ -105,10 +105,12 @@ def weekend_stats(recs: dict, fri: dt.date, last_year: int) -> dict:
     }
 
 
-def read_data_constant(src: str):
-    start = src.index("const DATA = [")
+def read_data_constant(src: str, name: str = "DATA_FULL"):
+    marker = f"const {name} = ["
+    start = src.index(marker)
     end = src.index("];", start)
-    return json.loads(src[start + 13 : end + 1]), start + 13, end + 1
+    a = start + len(marker) - 1
+    return json.loads(src[a : end + 1]), a, end + 1
 
 
 def main():
@@ -116,19 +118,29 @@ def main():
     ap.add_argument("--write", action="store_true", help="patch index.html DATA in place")
     ap.add_argument("--fetch", action="store_true", help="download missing yearly CSVs first")
     ap.add_argument("--last-year", type=int, default=2026, help="last data year to include")
+    ap.add_argument("--era", choices=["full", "recent"], default="full",
+                    help="which DATA constant to check/patch (full: 1913-, recent: 1990- averages; records always full-record)")
     args = ap.parse_args()
 
     if args.fetch:
         fetch_missing(args.last_year)
 
+    global FIRST_YEAR
+    era_start = {"full": 1913, "recent": 1990}[args.era]
+    const_name = {"full": "DATA_FULL", "recent": "DATA_RECENT"}[args.era]
     recs = load_records()
     src = INDEX.read_text()
-    data, a, b = read_data_constant(src)
+    data, a, b = read_data_constant(src, const_name)
 
     diffs = 0
     for entry in data:
         fri = dt.date.fromisoformat(entry["start"])
+        FIRST_YEAR = 1913
+        full = weekend_stats(recs, fri, args.last_year)
+        FIRST_YEAR = era_start
         new = weekend_stats(recs, fri, args.last_year)
+        new["recHi"], new["recLo"] = full["recHi"], full["recLo"]  # records always span the full record
+        FIRST_YEAR = 1913
         for k, v in new.items():
             old = entry.get(k)
             if old is None or old != v:
