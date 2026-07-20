@@ -16,9 +16,8 @@ window's calendar days across all years. "Rainy day" = Total Rain > 0 mm.
 "Hot day" = Max Temp > 30 °C (86 °F). DATA temps are stored in °C (the page
 converts to °F at render time).
 
-NOT covered here: the SMOKE constant (Cranbrook A hourly observations + NOAA
-HMS plumes) — that pipeline was never committed; treat SMOKE as frozen unless
-rebuilt from scratch.
+SMOKE is covered by scripts/recompute_smoke.py (Cranbrook A hourly obs;
+verified 2026-07-19). Only hmsHeavyPct (NOAA HMS plumes) remains external.
 """
 import argparse, csv, datetime as dt, json, re, statistics as st, sys, urllib.request
 from pathlib import Path
