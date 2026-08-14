@@ -147,11 +147,12 @@
         <span><i class="swatch" style="background:var(--lo)"></i>Average low</span>
         <span><i class="swatch bar" style="background:var(--lo);opacity:.55"></i>Rainy days</span>
         <span><i class="swatch bar" style="background:var(--smoke);opacity:.8"></i>Smoke risk (’15–’25)</span>
+        <span><i class="swatch bar" style="background:var(--hi);opacity:.7"></i>Days over 86°F</span>
       </div>
     </div>
     <div class="chart-scroll">
-      <svg id="chart" viewBox="0 0 1060 720" role="img"
-           aria-label="Chart of average high and low temperature and share of rainy days for each Friday-to-Sunday weekend of 2027 at Fernie, BC"></svg>
+      <svg id="chart" viewBox="0 0 1060 848" role="img"
+           aria-label="Chart of average high and low temperature, share of rainy days, wildfire smoke, and share of days over 86 degrees Fahrenheit for each Friday-to-Sunday weekend of 2027 at Fernie, BC"></svg>
     </div>
   </div>
 
@@ -190,12 +191,13 @@ const fmt = (v, unit="°") => v == null ? "—" : `${v}${unit}`;
 // ---- chart ----
 const svg = document.getElementById("chart");
 const NS = "http://www.w3.org/2000/svg";
-const W = 1060, H = 720;
+const W = 1060, H = 848;
 const M = { l: 44, r: 16, t: 16 };
 const tempTop = M.t, tempBot = 320;
 const rainTop = 368, rainBot = 540;
 const smokeTop = 592, smokeBot = 664;
-const axisY = 704;
+const hotTop = 716, hotBot = 792;
+const axisY = 832;
 const plotW = W - M.l - M.r;
 const n = DATA_FULL.length;
 const step = plotW / n;
@@ -204,6 +206,7 @@ const T_MIN = -5, T_MAX = 90; // °F
 const ty = t => tempBot - (t - T_MIN) / (T_MAX - T_MIN) * (tempBot - tempTop);
 const ry = p => rainBot - p / 100 * (rainBot - rainTop);
 const sy = p => smokeBot - p / 30 * (smokeBot - smokeTop);
+const hy = p => hotBot - p / 40 * (hotBot - hotTop);
 const cx = i => M.l + step * (i + 0.5);
 
 function el(name, attrs, parent = svg) {
@@ -254,6 +257,25 @@ SMOKE.forEach((s, i) => {
   }
 });
 
+// hot-days gridlines + bars
+for (const g of [0, 20, 40]) {
+  el("line", { x1: M.l, x2: W - M.r, y1: hy(g), y2: hy(g), stroke: "var(--grid)", "stroke-width": 1 });
+  txt(M.l - 8, hy(g) + 4, `${g}%`, { "text-anchor": "end" });
+}
+txt(M.l, hotTop - 14, "HOT DAYS — SHARE OF DAYS OVER 86°F AT THE STATION (THE LODGE RUNS ~4°F COOLER)",
+    { "letter-spacing": "0.1em", "font-size": 10, fill: "var(--ink-2)" });
+DATA.forEach((d, i) => {
+  if (d.hotPct > 0) {
+    const h = Math.max(2, (hotBot - hotTop) * Math.min(d.hotPct, 40) / 40);
+    el("rect", { x: M.l + step * i + 2, y: hotBot - h, width: step - 4, height: h,
+                 fill: "var(--hi)", opacity: 0.7, rx: 2 });
+  }
+});
+const hotPeakI = DATA.reduce((b, d, i) => d.hotPct > DATA[b].hotPct ? i : b, 0);
+if (DATA[hotPeakI].hotPct > 0)
+  txt(cx(hotPeakI), hy(Math.min(DATA[hotPeakI].hotPct, 40)) - 6, `${Math.round(DATA[hotPeakI].hotPct)}%`,
+      { "text-anchor": "middle", fill: "var(--hi)", "font-size": 11.5, "font-weight": 600 });
+
 // month ticks
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 let seen = new Set();
@@ -261,7 +283,7 @@ DATA.forEach((d, i) => {
   if (!seen.has(d.month)) {
     seen.add(d.month);
     txt(cx(i) - step / 2, axisY, MONTHS[d.month - 1], { "font-size": 11.5, fill: "var(--ink-2)" });
-    el("line", { x1: M.l + step * i, x2: M.l + step * i, y1: smokeBot, y2: smokeBot + 6,
+    el("line", { x1: M.l + step * i, x2: M.l + step * i, y1: hotBot, y2: hotBot + 6,
                  stroke: "var(--rule)", "stroke-width": 1 });
   }
 });
@@ -292,13 +314,13 @@ DATA.forEach((d, i) => {
 
 // hover layer
 const tooltip = document.getElementById("tooltip");
-const cross = el("line", { y1: tempTop, y2: smokeBot, stroke: "var(--ink-2)",
+const cross = el("line", { y1: tempTop, y2: hotBot, stroke: "var(--ink-2)",
                            "stroke-width": 1, "stroke-dasharray": "3 3", visibility: "hidden" });
 const hiDot = el("circle", { r: 4, fill: "var(--hi)", stroke: "var(--ground)", "stroke-width": 2, visibility: "hidden" });
 const loDot = el("circle", { r: 4, fill: "var(--lo)", stroke: "var(--ground)", "stroke-width": 2, visibility: "hidden" });
 
 DATA.forEach((d, i) => {
-  const hit = el("rect", { x: M.l + step * i, y: tempTop, width: step, height: smokeBot - tempTop,
+  const hit = el("rect", { x: M.l + step * i, y: tempTop, width: step, height: hotBot - tempTop,
                            fill: "transparent" });
   hit.addEventListener("pointerenter", ev => show(d, i, ev));
   hit.addEventListener("pointermove", ev => place(ev));
