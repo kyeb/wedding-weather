@@ -146,7 +146,7 @@
         <span><i class="swatch" style="background:var(--hi)"></i>Average high</span>
         <span><i class="swatch" style="background:var(--lo)"></i>Average low</span>
         <span><i class="swatch bar" style="background:var(--lo);opacity:.55"></i>Rainy days</span>
-        <span><i class="swatch bar" style="background:var(--smoke);opacity:.8"></i>Smoke risk (’15–’25)</span>
+        <span><i class="swatch bar" style="background:var(--smoke);opacity:.8"></i><span id="smoke-legend">Smoke risk (’15–’25)</span></span>
         <span><i class="swatch bar" style="background:var(--hi);opacity:.7"></i>Days over 86°F</span>
       </div>
     </div>
@@ -164,7 +164,8 @@
   it to run ~4 °F cooler on a standard lapse rate (its microclimate bends this). “Days over 86°F” is the share of window days with a max above 30 °C at the station (the lodge runs cooler; see below). Winter weekends see snow far more often than rain (snowy-day odds are in
   each tooltip). Smoke: “smoky day” means a human observer at Cranbrook A airport (60 mi west, same
   airshed) logged Smoke in the hourly weather record — a consistent instrument from 1968 through today.
-  Bars show 2015–2025, the modern fire era; small ticks show the 1968–2014 baseline, when smoke touched
+  Bars show 2015–2025, the modern fire era — or the full 1968–2025 smoke record when the full-record
+  toggle is on; small ticks always show the 1968–2014 baseline, when smoke touched
   fewer than 2% of days in every week of the year. NOAA satellite smoke-plume maps (2005–2025) and Elk
   Valley PM2.5 monitors (2018–2025) independently confirm the seasonal shape; the tooltip includes the
   share of days with a heavy plume overhead. The step change between eras is the signal: smoke risk in
@@ -222,7 +223,7 @@ function txt(x, y, str, attrs = {}) {
 }
 
 
-function render(DATA) {
+function render(DATA, era) {
 svg.innerHTML = "";
 // temp gridlines (32°F freezing line emphasized)
 for (const g of [0, 20, 32, 40, 60, 80]) {
@@ -242,11 +243,19 @@ for (const g of [0, 15, 30]) {
   el("line", { x1: M.l, x2: W - M.r, y1: sy(g), y2: sy(g), stroke: "var(--grid)", "stroke-width": 1 });
   txt(M.l - 8, sy(g) + 4, `${g}%`, { "text-anchor": "end" });
 }
-txt(M.l, smokeTop - 14, "WILDFIRE SMOKE — SHARE OF DAYS WITH SMOKE OBSERVED · BARS 2015–2025 · TICKS 1968–2014 BASELINE",
+txt(M.l, smokeTop - 14, era === "full"
+    ? "WILDFIRE SMOKE — SHARE OF DAYS WITH SMOKE OBSERVED · BARS FULL RECORD 1968–2025 · TICKS 1968–2014 BASELINE"
+    : "WILDFIRE SMOKE — SHARE OF DAYS WITH SMOKE OBSERVED · BARS 2015–2025 · TICKS 1968–2014 BASELINE",
     { "letter-spacing": "0.1em", "font-size": 10, fill: "var(--ink-2)" });
+document.getElementById("smoke-legend").textContent =
+  era === "full" ? "Smoke risk (’68–’25)" : "Smoke risk (’15–’25)";
+const smokeBarPct = s => s.newPct == null ? null
+  : era === "full" ? (s.oldPct * s.nOld + s.newPct * s.nNew) / (s.nOld + s.nNew)
+  : s.newPct;
 SMOKE.forEach((s, i) => {
-  if (s.newPct != null) {
-    const h = Math.max(s.newPct > 0 ? 2 : 0.75, (smokeBot - smokeTop) * Math.min(s.newPct, 30) / 30);
+  const p = smokeBarPct(s);
+  if (p != null) {
+    const h = Math.max(p > 0 ? 2 : 0.75, (smokeBot - smokeTop) * Math.min(p, 30) / 30);
     el("rect", { x: M.l + step * i + 2, y: smokeBot - h, width: step - 4, height: h,
                  fill: "var(--smoke)", opacity: 0.8, rx: 2 });
   }
@@ -369,9 +378,9 @@ document.getElementById("datatable").innerHTML =
   DATA.map((d, i) => `<tr><td>${d.label}</td><td>${fmt(F(d.hi))}</td><td>${fmt(F(d.lo))}</td><td>${d.rainPct}%</td><td>${d.hotPct}%</td><td>${SMOKE[i].newPct == null ? "—" : SMOKE[i].newPct + "%"}</td><td>${SMOKE[i].oldPct == null ? "—" : SMOKE[i].oldPct + "%"}</td><td>${d.rainTypical} mm</td><td>${d.snowPct}%</td><td>${fmt(F(d.recHi))}</td><td>${fmt(F(d.recLo))}</td><td>${d.nDays}</td></tr>`).join("");
 }
 
-render(DATA_RECENT);
+render(DATA_RECENT, "recent");
 const eraBtns = { recent: document.getElementById("era-recent"), full: document.getElementById("era-full") };
-eraBtns.recent.addEventListener("click", () => { render(DATA_RECENT); eraBtns.recent.classList.add("on"); eraBtns.full.classList.remove("on"); });
-eraBtns.full.addEventListener("click", () => { render(DATA_FULL); eraBtns.full.classList.add("on"); eraBtns.recent.classList.remove("on"); });
+eraBtns.recent.addEventListener("click", () => { render(DATA_RECENT, "recent"); eraBtns.recent.classList.add("on"); eraBtns.full.classList.remove("on"); });
+eraBtns.full.addEventListener("click", () => { render(DATA_FULL, "full"); eraBtns.full.classList.add("on"); eraBtns.recent.classList.remove("on"); });
 
 </script>
